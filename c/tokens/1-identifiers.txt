@@ -1,0 +1,38 @@
+An identifier is the name given to variables, functions, arrays, structures, constants, etc
+
+Rules of Identifiers: 
+
+
+✔ 1. Only letters, digits, and underscores are allowed
+
+Allowed characters: A–Z, a–z, 0–9, _ (underscore)
+
+❌ No spaces
+❌ No special symbols like @, #, $, %, &, *
+
+✔ 2. Identifier must NOT start with a digit
+
+Example: 1level, level1
+
+✔ 3. Identifiers are case-sensitive
+
+Example : firstname, FirstName, firstName, FIRSTNAME
+
+✔ 4. No keywords allowed
+
+Example: for, if, else, while
+
+✔ 5. Length limit
+
+C standard doesn’t fix a strict length, but compilers typically:
+- recognize at least first 31 characters (for variables)
+- recognize first 63 characters (for functions)
+- Better to keep identifiers short and meaningful.
+
+✔ 6. Should be meaningful (recommended best practice)
+
+Not a rule but a good habit:
+
+Example : int studentCount;
+
+✔ 7. it must be unique 

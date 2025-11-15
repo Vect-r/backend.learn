@@ -1,0 +1,8 @@
+// Documentation section
+// Linking section
+
+// Global declaration section
+
+// main function
+
+// sub-function declaration section

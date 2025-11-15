@@ -1,0 +1,50 @@
+Keywords are "special reserved words" in C that have a fixed "meaning" and "purpose" in the language.
+
+- You cannot use them as identifiers (variable names, function names, etc.)
+
+These words are already defined by the C compiler.
+
+Important Points About Keywords
+
+    - Fixed meaning
+    - Cannot be changed
+    - Cannot be used as variable names
+    - All keywords are written in lowercase
+
+📋 List of 32 Keywords in C
+
+| Keyword  | Meaning                     |
+| -------- | --------------------------- |
+| auto     | Automatic storage class     |
+| break    | Breaks loop/switch          |
+| case     | Used in switch statement    |
+| char     | Character data type         |
+| const    | Constant value              |
+| continue | Skip current loop iteration |
+| default  | Default case in switch      |
+| do       | Used with do–while loop     |
+| double   | Double-precision float      |
+| else     | If condition false          |
+| enum     | Enumeration                 |
+| extern   | External variable           |
+| float    | Floating data type          |
+| for      | Loop                        |
+| goto     | Jump to label               |
+| if       | Condition                   |
+| int      | Integer data type           |
+| long     | Long integer                |
+| register | CPU register storage        |
+| return   | Return from function        |
+| short    | Short integer               |
+| signed   | Signed type                 |
+| sizeof   | Size of data type           |
+| static   | Static storage class        |
+| struct   | Structure                   |
+| switch   | Multiple choice selection   |
+| typedef  | Type definition             |
+| union    | Union data type             |
+| unsigned | Unsigned type               |
+| void     | No value / return type      |
+| volatile | Value can change anytime    |
+| while    | Loop                        |
+| -------- | --------------------------- |

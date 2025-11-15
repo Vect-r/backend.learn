@@ -1,0 +1,23 @@
+A variable is a named memory location used to store data in a C program.
+
+➡ A variable is like a container that holds a value, and the value can change while the program runs.
+
+syntax : datatype variable_name = value;
+
+
+Why are variables needed?
+
+We use variables to:
+    - store data
+    - perform operations
+    - change values during runtime
+
+
+: snack_case
+my_first_name
+
+: PascalCase
+MyFirstName
+
+: camelCase
+myFirstName

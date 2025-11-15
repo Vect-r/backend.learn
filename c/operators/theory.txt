@@ -1,0 +1,11 @@
+Operators in C are special symbols that instruct the compiler to perform specific mathematical, logical, or relational operations on operands (variables or values). They are fundamental to C programming, enabling computation, comparison, and manipulation of data.
+
+Types of Operators in c
+
+Arithmetic Operators: Perform mathematical calculations.
+Assignment Operators: Assign values to variables.
+Relational Operators: Used for comparing two values, returning a boolean result (true or false).
+Logical Operators: Combine or modify conditional expressions.
+Conditional Operator (Ternary Operator): A shorthand for if-else statements.
+Other Operators:
+Bitwise Operators: Perform operations on individual bits of integer data.

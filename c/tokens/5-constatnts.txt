@@ -1,0 +1,20 @@
+Imagine you have a box where you put a number and you lock the box 🔒.
+Nobody can change the number inside the box.
+That locked number = constant.
+
+A constant in C is a value that cannot be changed during the execution of a program.
+Once a constant is defined, it remains fixed.
+
+
+#include <stdio.h>
+
+#define PI 3.14   // symbolic constant
+
+int main() {
+    const int age = 20;   // variable constant
+
+    printf("PI = %f\n", PI);
+    printf("Age = %d\n", age);
+
+    return 0;
+}

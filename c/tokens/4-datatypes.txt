@@ -1,0 +1,59 @@
+Data types tell the computer what kind of value we want to store.
+
+1. Basic Data Types
+
+int (integer) { %d } : Stores whole numbers (no decimal)
+Size: 4 bytes
+Range: -2,147,483,648 to 2,147,483,647
+Example: 10, -5, 1000
+
+float : Stores decimal numbers (less precision) {  %f }
+Size: 4 bytes
+Range: Approximately 1.2E-38 to 3.4E+38 (6 decimal places of precision)
+Example: 3.14, 10.5
+
+double: Stores decimal numbers (more precision than float) { %lf 
+Size: 8 bytes
+Range: Approximately 2.3E-308 to 1.7E+308 (15 decimal places of precision)}
+Example: 3.1415926535
+
+char (character) { %c }: Stores a single character
+Size: 1 byte
+Range: -128 to 127 (signed) or 0 to 255 (unsigned)
+Example: Must be in single quotes 'A'
+
+2. Derived Data Types
+
+Arrays : Stores multiple values of the same type.
+Example: int marks[5] = {10, 20, 30, 40, 50};
+
+String : collection of chars { %s }
+Corresponding Data Type: char[] or char*
+Size: Depends on the length of the string (variable)
+Example: char name[3] = { 'J', 'A', 'Y'} 
+
+Structures: Store different types of data together.
+Example: struct Student {
+  int roll;
+  char name[20];
+  float marks;
+};
+
+
+Pointers: Stores the memory address of another variable. { %p }
+Corresponding Data Type: void*
+Size: Depends on the system architecture (e.g., 4 bytes on 32-bit systems, 8 bytes on 64-bit systems)
+Example: int *ptr;
+
+
+3. Enumeration (enum): Used to define your own set of named values.
+Example: enum week { Mon, Tue, Wed, Thu, Fri, Sat, Sun };
+
+4. Void: Means nothing / empty
+Used for:
+    - Functions returning nothing
+    - Pointer of unknown type
+
+Example: void sayHello() {
+   printf("Hello");
+}
