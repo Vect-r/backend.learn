@@ -1,0 +1,15 @@
+#include <stdio.h>
+
+int main() {
+    // int age = 16;
+    
+    // if(age >= 18){
+    //     printf("adult");
+    // }
+    
+    float bal = 5667.5;
+    if (245 <= bal){
+        printf("Now, remaining balance is: %.2f", bal-345);
+    }
+    return 0;
+}
