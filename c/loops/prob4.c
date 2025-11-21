@@ -8,9 +8,9 @@ void main() {
         }
         for(int col = 1; col <= num; col+=1){
             if (col==end || col==num || row==num || row==end) {
-                printf("*");
+                printf("* ");
             } else {
-                printf(" ");
+                printf("  ");
             }
         }
         printf("\n");

@@ -256,3 +256,181 @@ int main() {
     *       * 
   *       * 
 * * * * * 
+-----------------------------------------------------
+
+A-65
+a-97
+
+a
+bc
+def
+ghij
+klmno
+
+#include <stdio.h>
+
+int main() {
+  int end = 5;
+  int g_var = 97;
+  
+  for(int row = 1; row <= end; row++){
+      for(int col = 1; col <= row; col++){
+          printf("%c ", g_var);
+          g_var++;
+      }
+      printf("\n");
+  }
+
+    return 0;
+}
+
+-----------------------------------
+A
+AB
+ABC
+ABCD
+ABCDE
+
+#include <stdio.h>
+
+int main() {
+  int end = 5;
+  
+  for(int row = 1; row <= end; row++){
+      for(int col = 1; col <= row; col++){
+          printf("%c", col + 64);
+      }
+      printf("\n");
+  }
+
+    return 0;
+}
+----------------------------------
+010101
+010101
+010101
+010101
+010101
+
+#include <stdio.h>
+
+int main() {
+  int end = 6;
+  
+  for(int row = 1; row < end; row++){
+      for(int col = 1; col <= end; col++){
+        if(col % 2 == 0){
+            printf("1");
+        }else{
+            printf("0");
+        }
+      }
+      printf("\n");
+  }
+
+    return 0;
+}
+-----------------------------------
+01010
+10101
+01010
+10101
+01010
+
+#include <stdio.h>
+
+int main() {
+  int end = 5;
+  int flag = 0;
+  
+  for(int row = 1; row <= end; row++){
+      for(int col = 1; col <= end; col++){
+          if (flag == 1){
+            printf("1");
+            flag = 0;
+          }else{
+            printf("0");
+            flag = 1;
+          }
+      }
+      printf("\n");
+  }
+
+    return 0;
+}
+
+-----------------------------------
+
+* * * * *
+  *       *
+    *   *   *
+      *       *
+        * * * * *
+
+
+#include <stdio.h>
+
+int main() {
+    int end = 5;
+    int flag = (end/2) + 1;
+    // printf("flag number: %d\n", flag);
+  
+    if (end % 2 != 0){
+        for(int row = 1; row <= end; row++){
+            for(int col = 1; col <= row; col++) {
+                printf("  ");
+            }
+            for(int col = 1; col <= end; col++){
+                if (row == 1 || col == 1 || row == end || col == end){
+                    printf("* ");
+                }else{
+                    if(row == 3 && col == 3){
+                        printf("* ");
+                    }else{
+                        printf("  ");
+                    }
+                }
+            }
+            printf("\n");
+        }
+    } else {
+        printf("End number must be: ODD");
+    }
+  
+  
+
+    return 0;
+}
+
+==================================================================
+
+
+* * * * * 
+ *       *
+  *   1   *
+   *       *
+    * * * * *
+    =========
+    * * * * * 
+   *       *
+  *   2   *
+ *       *
+* * * * *
+=========
+* * * * * 
+ *       *
+  *   3   *
+   *       *
+    * * * * *
+    =========
+    * * * * * 
+   *       *
+  *   4   *
+ *       *
+* * * * *
+=========
+* * * * * 
+ *       *
+  *   5   *
+   *       *
+    * * * * *
