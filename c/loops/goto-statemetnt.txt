@@ -1,0 +1,17 @@
+#include <stdio.h>
+
+int main() {
+    int i = 0;
+
+    start_loop:
+    printf("Value of i: %d\n", i);
+    i++;
+
+    if (i < 5) {
+        goto start_loop; // Jump back to start_loop
+    }
+
+    printf("Loop finished.\n");
+
+    return 0;
+}

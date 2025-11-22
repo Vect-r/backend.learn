@@ -1,0 +1,79 @@
+#include <stdio.h>
+
+int main() {
+    while(1){
+        printf("Brijesh");
+    }
+
+    return 0;
+}
+
+-----------------------------
+
+*****
+*****
+*****
+*****
+*****
+
+
+#include <stdio.h>
+
+int main() {
+    int row = 1, end = 5;
+    
+    while(row <= end){
+        int col = 1;
+        while(col <= end){
+            printf("*", row);
+            col++;
+        }
+        printf("\n");
+        row++;
+         
+    }
+
+    return 0;
+}
+
+-----------------------------------
+
+*
+**
+***
+****
+*****
+
+#include <stdio.h>
+
+int main() {
+    int row = 1, end = 5;
+    
+    while(row <= end){
+        int col = 1;
+        while(col <= row){
+            printf("*", row);
+            col++;
+        }
+        printf("\n");
+        row++;
+         
+    }
+
+    return 0;
+}
+
+--------------------------------------------------------
+#include <stdio.h>
+
+int main() {
+    int table = 5,start=1, end = 10;
+    
+    while(start <= end){
+        printf("%d * %d = %d\n", start, table, start*table);
+        start++;
+         
+    }
+
+    return 0;
+}

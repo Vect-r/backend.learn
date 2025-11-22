@@ -1,0 +1,13 @@
+#include <stdio.h>
+
+int main() {
+    int table = 5,start=1, end = 10;
+    
+    do{
+        printf("%d * %d = %d\n", start, table, start*table);
+        start++;
+         
+    }while(start <= end);
+
+    return 0;
+}
