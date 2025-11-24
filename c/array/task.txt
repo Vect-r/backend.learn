@@ -1,0 +1,4 @@
+get dynamic student number
+total subects will be 5:
+set case if i choose option 1: total_obtained marks of specific student
+set case if i choose option 2: percentage of marks of specific student

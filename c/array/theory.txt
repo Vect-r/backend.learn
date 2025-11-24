@@ -1,0 +1,36 @@
+Liner: 
+    - Array
+    - Linkedlist
+    - stack
+    - queue
+
+non-liner:
+    - graph
+    - tree
+
+An array in C is a collection of data items of the same data type. stored in contiguous memory locations and accessed using a single name and an index. Arrays are fundamental data structures in C for managing multiple related values efficiently.
+
+
+Key Characteristics of Arrays in C:
+Homogeneous Data Type: All elements within an array must be of the same data type (e.g., all integers, all characters, all floats).
+Contiguous Memory Allocation: Array elements are stored sequentially in memory, meaning they occupy adjacent memory addresses.
+Fixed Size: Once declared, the size of a static array in C cannot be changed during program execution. For dynamic resizing, dynamic memory allocation functions like malloc() and realloc() are used.
+Indexed Access: Individual elements are accessed using an index, which is a non-negative integer representing the element's position within the array. C arrays are zero-indexed, meaning the first element is at index 0, the second at index 1, and so on.
+
+1d:
+
+data_type array_name[size] = {
+    val1, val2,....valn
+};
+data_type array_name[size] = "brijesh";
+
+mD:
+
+data_type array_name[row][col] = {
+    {
+        val1, val1, val1
+    },
+    {
+        val2, val2, val2
+    }
+}
