@@ -2,3 +2,30 @@ get dynamic student number
 total subects will be 5:
 set case if i choose option 1: total_obtained marks of specific student
 set case if i choose option 2: percentage of marks of specific student
+
+
+// Online C compiler to run C program online
+#include <stdio.h>
+
+int main() {
+    int arr1[6] = {56,90,34,12,100,32};
+    
+    int arrLen = sizeof(arr1)/sizeof(arr1[0]);
+    
+    for(int i=0;i<arrLen;i++){
+        for(int c=0;c<arrLen-1;c++){
+            if(arr1[c]>arr1[c+1]){
+                int temp = arr1[c];
+                arr1[c]=arr1[c+1];
+                arr1[c+1]=temp;
+            }
+        }
+        for(int i=0;i<arrLen;i++){
+            printf("%d, ",arr1[i]);
+        }
+        printf("\n");
+    }
+    
+    printf("Second largest Number %d",arr1[arrLen-2]);
+    
+}

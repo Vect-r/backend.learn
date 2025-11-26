@@ -19,10 +19,10 @@ void main(){
     printf("\n");
 
     for(int i=0;i<arrLen;i++){
-        int unsign = diff/currency[i];
-        if(unsign>0){
-            diff-=(currency[i]*unsign);
-            printf("%d x %d = %d\n",currency[i],unsign,currency[i]*unsign);
+        int quo = diff/currency[i];
+        if(quo>0){
+            diff-=(currency[i]*quo);
+            printf("%d x %d = %d\n",currency[i],quo,currency[i]*quo);
         }
     }
 

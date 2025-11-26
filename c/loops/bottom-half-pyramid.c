@@ -34,7 +34,7 @@ void main(){
         }
         for(int col=row;col>=end;col--){
             if (col%2!=0||col==row){
-                printf("| ",col);
+                printf("\\ ",col);
             } else {
                 printf("  ");
             }

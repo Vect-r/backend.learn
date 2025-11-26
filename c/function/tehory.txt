@@ -1,0 +1,169 @@
+A function in C is a self-contained, reusable block of code that performs a specific task. Functions allow complex programs to be broken down into smaller, more manageable modules, which improves code organization, readability, and debugging. 
+
+Key Concepts
+
+Working with functions in C involves three main aspects:
+
+    - Declaration (Prototype): This informs the compiler about the function's name, return type, and parameters it accepts. It acts as a signature and typically ends with a semicolon.
+
+    Syntax: return_type function_name(parameter_list);
+
+    - Definition: This contains the actual code (body) that is executed when the function is called. The body is enclosed in curly braces {}.
+    
+    Syntax: 
+    return_type function_name(parameter_list[Formal para/args]) { 
+        // body of the function 
+    }
+
+    - Call: This is the act of invoking a function from another part of the program (like the main function) to execute its code. Arguments (actual values) are passed during the call.
+
+    Syntax: 
+    
+    function_name(arguments[actucal para/args]); (or variable = function_name(arguments); if it returns a value). 
+
+Types of Functions
+    Functions in C are broadly classified into two categories: 
+
+        Library Functions (Built-in): These are predefined functions provided by the C standard library to perform common tasks. You access them by including the relevant header file (e.g., printf() and scanf() are in <stdio.h>, and sqrt() is in <math.h>).
+
+        User-defined Functions: These are functions created by the programmer to meet specific program requirements. The programmer is responsible for their declaration, definition, and calling. 
+
+Functions with no arguments and no return value (return type void).
+    #include <stdio.h>
+
+    // void sum(int num1, int num2);
+
+    int main() {
+        void sum(){
+            int num1 = 10,  num2 = 20;
+            // return num1 + num2;
+            printf("%d", num1 + num2);
+        }
+        sum();
+        // printf("%d", sum(10, 20));
+
+        return 0;
+    }
+
+Functions with arguments but no return value (return type void).
+    #include <stdio.h>
+
+    // void sum(int num1, int num2);
+
+    int main() {
+        void sum(int num1, int num2){
+            // return num1 + num2;
+            printf("%d", num1 + num2);
+        }
+        sum(10, 20);
+        // printf("%d", sum(10, 20));
+
+        return 0;
+    }
+
+Functions with no arguments but a return value.
+
+    #include <stdio.h>
+
+    // void sum(int num1, int num2);
+
+    int main() {
+        int sum(){
+            int num1 = 10,  num2 = 20;
+            return num1 + num2;
+        }
+        // sum();
+        printf("%d", sum());
+
+        return 0;
+    }
+
+Functions with arguments and a return value. 
+    #include <stdio.h>
+
+    int sum(int num1, int num2);
+
+    int main() {
+        int sum(int num1, int num2){
+            return num1 + num2;
+        }
+        
+        printf("%d", sum(10, 20));
+
+        return 0;
+    }
+
+------------------------------------------------------
+A recursive function in C is a function that calls itself, either directly or indirectly, to solve a problem by breaking it down into smaller, simpler versions of the same problem. 
+
+0 1 1 2 3 5 8 13.....
+
+#include <stdio.h>
+
+int fiboo(int n){
+   int n1 = 0, n2 = 1;
+   if (n == 9){
+       return n2;
+   }else if(n == 10){
+       return n1;
+   }
+   else{
+       int nth;
+       nth = n1 + n2;
+       n1 = n2;
+       n2 = nth;
+       return nth + fiboo(n - 1);
+   }
+}
+
+int main() {
+    int num = 10;
+    printf("%d ", fiboo(num));
+    
+    return 0;
+}
+
+--------------------------------------------------
+without using function
+--------------------------------------------------
+#include <stdio.h>
+
+   
+int main() {
+    int num = 10;
+    int n1 = 0, n2 = 1, nth;
+    for(int start = 0; start<num;start++){
+       if(start == 0 ){
+           printf("0 ");
+       }else if(start == 1){
+           printf("1 ");
+       }else{
+           nth = n1 + n2;
+           n1 = n2;
+           n2 = nth;
+           printf("%d ", nth);
+       }
+   }
+    
+    return 0;
+}
+--------------------------------------------------
+
+1 + 2 + 3 + 4 + ... + n
+
+#include <stdio.h>
+
+int nNumSum(int n){
+   if (n == 1){
+       return 1;
+   }else{
+       return n + nNumSum(n - 1);
+   }
+}
+
+int main() {
+    int num = 10;
+    printf("%d ", nNumSum(num));
+    
+    return 0;
+}
