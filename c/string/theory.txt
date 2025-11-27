@@ -1,0 +1,78 @@
+A string is fundamentally an array of characters that is terminated by a null character (\0). Unlike some other programming languages that have a dedicated string data type, C uses character arrays to represent strings.
+
+Here are the key characteristics of strings in C:
+
+    - Character Array: A string is declared as an array of char data type. For example, char myString[20]; declares an array named myString that can hold up to 19 characters plus the null terminator.
+     
+    - Null Termination: The defining feature of a C string is the null character (\0) at its end. This character signals the end of the string to functions that process strings, such as strlen() or strcpy(). Without the null terminator, these functions would not know where the string ends and could lead to errors or unexpected behavior.
+    
+    - Initialization: Strings can be initialized in a couple of ways:
+    Character by character: char name[6] = {'H', 'e', 'l', 'l', 'o', '\0'};
+    String literal: char name[] = "Hello"; In this case, the compiler automatically adds the null terminator.
+
+    - String Functions: C provides a standard library (string.h) with various functions for manipulating strings, including:
+    strcpy(): Copies one string to another.
+    strcat(): Concatenates (joins) two strings.
+    strlen(): Returns the length of a string (excluding the null terminator).
+    strcmp(): Compares two strings lexicographically.
+    strchr(): Finds the first occurrence of a character in a string.
+    strstr(): Finds the first occurrence of a substring within a string.
+
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char name[] = "Brijesh";
+    printf("Len %d\n", strlen(name));
+    printf("size %d", sizeof(name));
+    
+    // char company[] = "BIT";
+    // printf("%c", company[0]);
+    // printf("%c", company[1]);
+    // printf("%c", company[2]);
+    // for(int start = 0; start<strlen(company); start++){
+    //     printf("%c", company[start]);
+    // }
+    
+    // char fname[100] = "Brijesh";
+    // char lname[] = "Gondaliya";
+    
+    // strcat(fname, " ");
+    // strcat(fname, lname);
+    
+    // printf("%s", fname);
+    
+    // char str1[] = "xyz";
+    // char str2[10];
+    
+    // strcpy(str2, str1);
+    
+    // printf("%s", str2);
+    
+    // char str1[] = "Hello";
+    // char str2[] = "hello";
+    
+    // int res = strcmp(str1, str2);
+    // printf("%d", res);
+    
+    
+    
+
+    return 0;
+}
+
+
+
+Task 1:
+-------------------------------------
+get string from the user: PyTHon cODE
+press 1: lower : python code
+press 2: upper : PYTHON CODE
+press 3: title : Python Code
+press 4: capitalize : Python code
+press 5: swap : pYthON Code
+press 6: count-uppercase : 
+press 7: count-lowercase : 
+press 8: count-digit : 
+press 9: count-special symbols : 
+
