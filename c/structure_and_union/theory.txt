@@ -1,0 +1,27 @@
+In C programming, both structures (struct) and unions (union) are user-defined data types that allow grouping of different data types under a single name. They differ primarily in how they manage memory and store their members.
+
+Structures (struct)
+
+    - A struct is a collection of variables (members) of different data types, grouped together under a single name. Each member within a structure occupies its own distinct memory location. This means that all members of a structure can store values simultaneously and independently.
+
+    syntax:
+
+        struct sturcture_name {
+            data1,
+            data2,
+        }s1, s2
+
+        struct sturcture_name s1, s2
+
+
+Unions (union)
+    A union is also a collection of variables (members) of different data types, but unlike structures, all members of a union share the same memory location. The size of a union is determined by the size of its largest member. At any given time, only one member of a union can hold a meaningful value; storing a value in one member will overwrite the value of any other member. 
+
+    syntax:
+
+        union union_name {
+            data1,
+            data2,
+        }s1, s2
+
+        union union_name s1, s2
