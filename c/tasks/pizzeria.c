@@ -1,22 +1,27 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <stdlib.h>
 
-int sepLen = 120, Bc =0;
+int sepLen = 120, Bc =0, random_offer;
 
 struct Biller{
-    char name[50];
+    char name[40];
     int quantity;
     int price;
+    char type[6];
 };
 
-struct Item{
-    char name[30];
-    char desc[300];
-    int price;
+struct Offer{
+    char type[6];
+    int discount;
 };
 
 struct Biller bill[50];
+struct Offer offers[3];
+
+
+
 
 void seperator(){
     //To Differen
@@ -49,8 +54,9 @@ char* getFormattedDateTime() {
     return buffer;
 }
 
-void add_to_bill(char itemname[100],int quantity, int price){
+void add_to_bill(char itemname[100],int quantity, int price, char type[6]){
     strcpy(bill[Bc].name,itemname);
+    strcpy(bill[Bc].type,type);
     bill[Bc].quantity=quantity;
     bill[Bc].price=price;
     Bc++;
@@ -61,8 +67,8 @@ int ask_quantity(){
     int q;
     printf("How much Quantity? ");
     scanf(" %d",&q);
-    if(q>5){
-        printf("Sorry. We are busy we can't take order more than 5.");
+    if(q<1){
+        printf("Error try again.\n");
         ask_quantity();
     } else {
         return q;
@@ -181,7 +187,7 @@ int pizza_menu(){
             strcat(pizza,servingFlags[temp-1]);
             price=prices[catChoice][temp-1];
             quantity=ask_quantity();
-            add_to_bill(pizza,quantity,price);
+            add_to_bill(pizza,quantity,price,"pizza");
         } else {
             printf("Error. Please Try again\n");
             goto choose_serving;
@@ -199,6 +205,7 @@ int pizza_menu(){
             goto menu;
             break;
         case 2:
+            seperator();
             printf("What would you like to order than Pizza?\n");
             return 0;
         default:
@@ -248,7 +255,7 @@ int pasta(){
             strcpy(pasta,pasta_names[choice-1]);
             price=prices[choice-1];
             quantity=ask_quantity();
-            add_to_bill(pasta,quantity,price);
+            add_to_bill(pasta,quantity,price,"pasta");
         } else {
             printf("Error!! Please Try Again\n");
             goto choose_menu;
@@ -266,6 +273,7 @@ int pasta(){
             goto menu;
             break;
         case 2:
+            seperator();
             printf("What would you like to order than Pasta?\n");
             return 0;
         default:
@@ -273,14 +281,201 @@ int pasta(){
         }
 }
 
+int sides_and_dips(){
+    char items[7][30] = {
+        "Garlic Bread","Cheesy Garlic Bread","Onion Rings","French Fries","Crispy Paneer Bites","BBQ Chicken Wings","Samosa Bites"
+    };
+    int prices[7]={99,129,149,129,169,199,99};
+
+    int menuSize=sizeof(items)/sizeof(items[0]);
+    char item[30];
+    int quantity,price;
+
+    menu:
+        star_seperator();
+        for(int i=0;i<menuSize;i++){
+            printf("%d %s Rs.%d\n",i+1,items[i],prices[i]);
+        }
+        star_seperator();
+
+    choose_menu:
+        int choice;
+        printf("So Which Sides & Dips you would like to order? ");
+        scanf(" %d",&choice);
+        if (choice>0 && choice<=menuSize){
+            strcpy(item,items[choice-1]);
+            price=prices[choice-1];
+            quantity=ask_quantity();
+            add_to_bill(item,quantity,price,"sides");
+        } else {
+            printf("Error!! Please Try Again\n");
+            goto choose_menu;
+        }
+
+    want_more:
+        printf("1. Yes i would like to order more\n");
+        printf("2. Nah, I'm Fine.\n");
+        int resp;
+        printf("Would you want to order another Sides & Dips? ");
+        scanf(" %d",&resp);
+        switch(resp){
+        case 1:
+            strcpy(item,"");
+            goto menu;
+            break;
+        case 2:
+            seperator();
+            printf("What would you like to order rather than Sides & Dips?\n");
+            return 0;
+        default:
+            goto want_more;
+        }
+
+}
+
+int drinks(){
+    char items[9][30] = {
+        "Coca Cola 250Ml","Sprite 250Ml","Fanta 250 Ml",
+        "Coca Cola 500Ml","Sprite 500Ml","Fanta 500 Ml",
+        "Coca Cola 1L","Sprite 1L","Fanta 1L"};
+    int prices[9]={20,20,20,35,35,35,55,55,55};
+
+    int menuSize=sizeof(items)/sizeof(items[0]);
+    char item[30];
+    int quantity,price;
+
+    menu:
+        star_seperator();
+        for(int i=0;i<menuSize;i++){
+            printf("%d %s Rs.%d\n",i+1,items[i],prices[i]);
+        }
+        star_seperator();
+
+    choose_menu:
+        int choice;
+        printf("So Which Drink you would like to order? ");
+        scanf(" %d",&choice);
+        if (choice>0 && choice<=menuSize){
+            strcpy(item,items[choice-1]);
+            price=prices[choice-1];
+            quantity=ask_quantity();
+            add_to_bill(item,quantity,price,"drinks");
+        } else {
+            printf("Error!! Please Try Again\n");
+            goto choose_menu;
+        }
+
+    want_more:
+        printf("1. Yes i would like to order more\n");
+        printf("2. Nah, I'm Fine.\n");
+        int resp;
+        printf("Would you want to order another Drinks? ");
+        scanf(" %d",&resp);
+        switch(resp){
+        case 1:
+            strcpy(item,"");
+            goto menu;
+            break;
+        case 2:
+            seperator();
+            printf("What would you like to order rather than Drinks?\n");
+            return 0;
+        default:
+            goto want_more;
+        }
+
+}
+
+int combo_offers(){
+    char items[4][30] = {
+        "Solo Combo","Couple Combo","Family Feast","Party Pack",
+    };
+    int prices[4]={299,499,799,999};
+
+    char desc[4][70]={
+        "Margherita Pizza S + Samosa + 1 Cold Drink 250ml",
+        "Flamin Hot M + Garlic Bread + 1 Cold Drink 500ml",
+        "Paneer 65 L + Garlic Bread + 1 Cold Drink 1 Ltr",
+        "Bhuna Murg XL + Penne Arabita Pasta + 1 Cold Drink 1Ltr"
+    };
+
+    char drinks[3][10]={"Coca Cola","Sprite","Fanta"};
+    int drinkSize = sizeof(drinks)/sizeof(drinks[0]);
+    int menuSize=sizeof(items)/sizeof(items[0]);
+    char item[30];
+    int quantity,price;
+
+    menu:
+        star_seperator();
+        for(int i=0;i<menuSize;i++){
+            printf("%d %s Rs.%d\n\t%s\n",i+1,items[i],prices[i],desc[i]);
+        }
+        star_seperator();
+
+    choose_menu:
+        int choice;
+        printf("So Which Combo you would like to order? ");
+        scanf(" %d",&choice);
+        if (choice>0 && choice<=menuSize){
+            strcpy(item,items[choice-1]);
+            price=prices[choice-1];
+
+        } else {
+            printf("Error!! Please Try Again\n");
+            goto choose_menu;
+        }
+
+    choose_drink:
+        int drink;
+        for(int i=0;i<drinkSize;i++){
+            printf("%d. %s\n",i+1,drinks[i]);
+        }
+        printf("Select Drink for Combo? ");
+        scanf("%d",&drink);
+        if (drink>0 && drink<=drinkSize){
+            strcat(item," ");
+            strcat(item,drinks[drink-1]);
+            quantity=ask_quantity();
+            add_to_bill(item,quantity,price,"combos");
+        } else {
+            goto choose_drink;
+        }
+
+
+    want_more:
+        printf("1. Yes i would like to order more\n");
+        printf("2. Nah, I'm Fine.\n");
+        int resp;
+        printf("Would you want to order another Combos? ");
+        scanf(" %d",&resp);
+        switch(resp){
+        case 1:
+            strcpy(item,"");
+            goto menu;
+            break;
+        case 2:
+            seperator();
+            printf("What would you like to order rather than Drinks?\n");
+            return 0;
+        default:
+            goto want_more;
+        }
+
+
+
+}
+
 void main_menu(){
-    char menu[6][20] = {"1. Pizza\n","2. Pasta\n","3. Side & Dips\n","4. Desserts\n","5. Combo Offers\n","6. Exit\n"};
+    char menu[6][20] = {"1. Pizza\n","2. Pasta\n","3. Side & Dips\n","4. Drinks\n","5. Combo Offers\n"};
     int size=sizeof(menu)/sizeof(menu[0]);
     seperator();
 
     menu_print:
         for (int i=0;i<size;i++){
             printf("%s",menu[i]);
+        }
+        if(Bc!=0){
+            printf("6. Generate Bill\n");
         }
 
     choose_menu:
@@ -294,37 +489,102 @@ void main_menu(){
             case 2:
                 pasta();
                 goto menu_print;
+            case 3:
+                sides_and_dips();
+                goto menu_print;
+            case 4:
+                drinks();
+                goto menu_print;
+            case 5:
+                combo_offers();
+                goto menu_print;
             case 6:
-                break;
+                if (Bc==0){
+                    printf("Error!! Try Again");
+                    goto choose_menu;
+                } else{
+                    break;
+                }
             default:
                 printf("Error!! Try Again");
                 goto choose_menu;
         }
 }
 
-void gimme_the_bill_man(){
-    int total=0;
-    printf("\n\n");
-    seperator();
-    printf("Bill Date & Time: %s\n",getFormattedDateTime());
-    printf("Name\t\t\tQty\tPrice\t\tTotal\n");
-    for(int i=0;i<Bc;i++){
-        printf("%s %d %d %d\n",bill[i].name,bill[i].quantity,bill[i].price,bill[i].quantity*bill[i].price);
-        total+=bill[i].price;
+void bill_seperator(){
+    for(int i=0;i<80;i++){
+        printf("#");
     }
-    seperator();
-    printf("Total %d\n",total);
+    printf("\n");
+}
+float calculateDiscount(float originalPrice, float discountPercentage) {
+    float discountAmount = (originalPrice * discountPercentage) / 100;
+    float finalPrice = originalPrice - discountAmount;
+    return finalPrice;
+}
+
+int gimme_the_bill_man(){
+    if (Bc==0){
+        return 0;
+    }
+    float total=0,saved=0;
+    printf("\n\n");
+    bill_seperator();
+    printf("Bill Generated at: %s\n",getFormattedDateTime());
+    bill_seperator();
+    printf("%-40s %-7s %-10s %-7s %-7s\n","Name","Qty","Discount","Price","Value");
+    bill_seperator();
+    for(int i=0;i<Bc;i++){
+        int discount=0;
+        float price=0;
+        if (strcmp(bill[i].type,offers[random_offer].type)==0){
+            discount=offers[random_offer].discount;
+            price=calculateDiscount(bill[i].price,discount);
+        } else {
+            price=bill[i].price;
+        }
+        float itemTotal=bill[i].quantity*price;
+        saved += (bill[i].price-price)*bill[i].quantity;
+        printf("%-40s %-7d %-10d %-7.2f %% %-7.2f\n",bill[i].name,bill[i].quantity,discount,price,itemTotal);
+        total+=itemTotal;
+    }
+    bill_seperator();
+    printf("Total %.2f; You Saved: %.2f\n",total,saved);
+    bill_seperator();
+    Bc=0;
+    memset(bill, 0, sizeof(bill));
+    printf("\n\n\n");
 }
 
 int greetings(){
+
     seperator();
     printf("Greetings from Zaika Pizzeria\n (Aroma of Indian Flavours blended with Italian Cuisine)\n\n \t\t\t\t\t\t\t\t %s\n",getFormattedDateTime());
+    seperator();
+    printf("Special Discount %d%% off on %s.\n",offers[random_offer].discount,offers[random_offer].type);
     seperator();
     printf("Hello User, What would like to have today\n");
 }
 
 void main(){
-    greetings();
-    main_menu();
-    gimme_the_bill_man();
+    strcpy(offers[0].type,"pizza");
+    offers[0].discount=5;
+
+    strcpy(offers[1].type,"pasta");
+    offers[1].discount=10;
+
+    strcpy(offers[2].type,"combos");
+    offers[2].discount=7;
+
+    int offerSize=sizeof(offers)/sizeof(offers[0]);
+    srand(time(0));
+
+    // Generate a random index between 0 and 2 (for an array of 3 elements)
+    random_offer = rand() % offerSize;
+
+    hello:
+        greetings();
+        main_menu();
+        gimme_the_bill_man();
+        goto hello;
 }
