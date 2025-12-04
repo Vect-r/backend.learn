@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio.h>
 
 int basePrice=2,age=0,routeId,from,destination,routesLength=2;
 
@@ -219,9 +220,8 @@ void clrscr() {
 }
 
 void pressKey(){
-    char o[1];
-    printf("Press Any Key to Continue...\n");
-    gets(o);
+    printf("\nPress Any Key to Continue...");
+    getch();
 }
 void main(){
     menu_loop:
@@ -236,5 +236,6 @@ void main(){
         clrscr();
         ticketPrinter();
         pressKey();
+        clrscr();
         goto menu_loop;
 }
