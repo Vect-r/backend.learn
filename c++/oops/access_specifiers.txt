@@ -1,0 +1,4 @@
+Access Specifier 	Accessible from within the same class	Accessible by derived classes	Accessible from outside the class (using an object)
+public	            Yes	                                    Yes (in public inheritance)     Yes
+protected	        Yes	                                    Yes                             No
+private	            Yes	                                    No	                            No
