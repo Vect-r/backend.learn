@@ -1,0 +1,32 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: cl.exe build active file",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"\"C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\Common7\\Tools\\VsDevCmd.bat\" -arch=amd64 && cl.exe",
+				"/Zi","/EHsc","/nologo",
+				"/I", "C:\\mysql-connector-c++-8.4.0-winx64\\include",
+				"/Fe${fileDirname}\\build\\${fileBasenameNoExtension}.exe",
+				"${file}",
+				"/link",
+				"/LIBPATH:C:\\mysql-connector-c++-8.4.0-winx64\\lib64\\vs14",
+				"mysqlcppconn.lib"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "compiler: cl.exe"
+		}
+	]
+}
