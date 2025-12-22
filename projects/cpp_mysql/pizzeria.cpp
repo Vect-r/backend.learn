@@ -24,7 +24,8 @@ using namespace std;
 #define KEY_DOWN 80
 #define KEY_ENTER '\r' // Carriage return character
 
-int sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = 0;
+int sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = 0, currUserId;
+string userName;
 
 sql::Connection *getConnection() {
     static sql::Connection *con = nullptr;
@@ -45,12 +46,16 @@ sql::Connection *getConnection() {
     return con;
 }
 
+void reset(){
+    sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = 0, currUserId=0;
+    userName = "";
+}
+
 enum itemTypes{
     Pizza,
     Pasta,
     Sides,
     Drink,
-    Dessert,
     Combo
 };
 
@@ -103,7 +108,7 @@ class DateTimeObj {
     }
 };
 
-int selectOption(const vector<string>& menuOptions) {
+int selectOption(const vector<string>& menuOptions, const string& prompt) {
     // vector<string> menuOptions = {"Option 1", "Option 2", "Option 3", "Exit"};
     int selectedIndex = 0;
     bool selecting = true;
@@ -112,7 +117,7 @@ int selectOption(const vector<string>& menuOptions) {
     while (selecting) {
         // displayMenu(menuOptions, selectedIndex);
         system("cls");
-        cout << "Select an option using arrow keys:" << endl << endl;
+        cout << prompt << endl << endl;
 
         for (size_t i = 0; i < menuOptions.size(); ++i) {
             if (i == selectedIndex) {
@@ -171,6 +176,19 @@ void star_seperator(){
     cout << endl;
 }
 
+void askName(){
+    // sql::Connection* con = getConnection();
+    cout<<"Your Good name please: ";
+    getline(cin,userName);
+}
+
+int askQuantity(){
+    int q;
+    cout<<"Enter Quantity? ";
+    cin>>q;
+    return q;
+}
+
 void greetings(DateTimeObj d){
     seperator();
     cout << endl;
@@ -179,22 +197,53 @@ void greetings(DateTimeObj d){
          << "\t\t\t\t\t\t\t\t" << d.getFormattedTime() << endl;
     seperator();
     cout << endl;
-    cout << "Hello User, What would like to have today" << endl;
+    askName();
+    // cout << "Hello User, What would like to have today" << endl;
 }
 
-void main_menu(){
-    vector<string> menuOptions = {"Pizza","Pasta","Sides & Dips","Coldrinks","Dessert","Combo Offers"};
+void choosePizza(){
+
+}
+
+void choosePasta(){
+
+}
+
+void chooseDrink(){
+
+}
+
+void chooseSides(){}
+
+void chooseCombo(){}
+
+void mainMenu(){
+    vector<string> menuOptions = {"Pizza","Pasta","Sides & Dips","Coldrinks","Combo Offers"};
+
+    void (*functptr[])() = {
+        choosePizza,
+        choosePasta,
+        chooseSides,
+        chooseDrink,
+        chooseCombo
+    };
+
     seperator();
-    int o=selectOption(menuOptions);
+    string prompt = "Hello "+userName+", What Would you like to have Today";
+    int o=selectOption(menuOptions, prompt);
     cout<<"Selected Option: "<< menuOptions[o] << endl;
 
+
 }
+
+
 
 int main() {
     menu:
         DateTimeObj Dobj;
         greetings(Dobj);
-        main_menu();
+        // cout<<Dobj.getWeekdayIndex();
+        mainMenu();
 
     return 0;
 }
