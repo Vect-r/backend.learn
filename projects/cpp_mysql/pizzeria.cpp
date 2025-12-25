@@ -16,6 +16,7 @@
 #include <string>
 
 #include <chrono>
+#include <thread>
 #include <iomanip>
 #include <sstream>
 
@@ -25,15 +26,30 @@ using namespace std;
 #define KEY_DOWN 80
 #define KEY_ENTER '\r' // Carriage return character
 
-int sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = 0;
+int sepLen = 120, Bc = 0, discountOffer = 0, weekDay;
+bool hasDiscount=false;
 int currUserId = 1, currOrderId = 0;
 string userName;
+
+
+#include <iostream>
+#include <chrono>
+#include <thread>
+
+void sleep(int secs) {
+    // Sleep for 2 seconds
+    // this_thread::sleep_for(std::chrono::seconds(2));
+    this_thread::sleep_for(chrono::seconds(secs));
+}
+
+void clrscr() {
+    system("@cls||clear");
+}
 
 sql::Connection *getConnection() {
     static sql::Connection *con = nullptr;
 
-    if (con == nullptr)
-    {
+    if (con == nullptr) {
         sql::mysql::MySQL_Driver *driver = sql::mysql::get_mysql_driver_instance();
 
         sql::ConnectOptionsMap props;
@@ -50,7 +66,7 @@ sql::Connection *getConnection() {
 }
 
 void reset() {
-    sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = 0, currUserId = 0;
+    sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = false, currUserId = 0;
     userName = "";
 }
 
@@ -75,22 +91,19 @@ private:
 
 public:
     // Constructor to store the current time
-    DateTimeObj()
-    {
+    DateTimeObj(){
         current_time = chrono::system_clock::now();
     }
 
     // Method to get formatted time as string (e.g., "Sunday, December 21, 2025 14:30:00")
-    string getFormattedTime() const
-    {
+    string getFormattedTime() const {
         time_t time_t_now = chrono::system_clock::to_time_t(current_time);
         stringstream ss;
         ss << put_time(localtime(&time_t_now), "%a, %B %d, %Y %I:%M %p");
         return ss.str();
     }
 
-    string getTime() const
-    {
+    string getTime() const {
         time_t time_t_now = chrono::system_clock::to_time_t(current_time);
         stringstream ss;
         ss << put_time(localtime(&time_t_now), "%I:%M %p");
@@ -98,16 +111,14 @@ public:
     }
 
     // Method to get the weekday index (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-    int getWeekdayIndex() const
-    {
+    int getWeekdayIndex() const {
         time_t time_t_now = chrono::system_clock::to_time_t(current_time);
         tm tm = *localtime(&time_t_now);
         return tm.tm_wday; // Weekday index (0 = Sunday, 6 = Saturday)
     }
 
     // Method to get the abbreviated weekday name (e.g., "Sun", "Mon")
-    string getWeekdayAbbr() const
-    {
+    string getWeekdayAbbr() const {
         time_t time_t_now = chrono::system_clock::to_time_t(current_time);
         stringstream ss;
         ss << put_time(localtime(&time_t_now), "%a"); // Abbreviated weekday name
@@ -115,8 +126,7 @@ public:
     }
 
     // Method to get the full weekday name (e.g., "Sunday", "Monday")
-    string getWeekdayFull() const
-    {
+    string getWeekdayFull() const {
         time_t time_t_now = chrono::system_clock::to_time_t(current_time);
         stringstream ss;
         ss << put_time(localtime(&time_t_now), "%A"); // Full weekday name
@@ -124,18 +134,28 @@ public:
     }
 };
 
-DateTimeObj Dobj;
+struct Offer{
+    int weekDay;
+    int discount;
+    sql::SQLString title;
+    sql::SQLString desc;
+    sql::SQLString type;
+};
 
-int selectOption(const vector<string> &menuOptions, const string &prompt) {
+DateTimeObj Dobj;
+Offer currOffer;
+
+
+int selectOption(const vector<string>& menuOptions, const string& prompt) {
     // vector<string> menuOptions = {"Option 1", "Option 2", "Option 3", "Exit"};
     int selectedIndex = 0;
     bool selecting = true;
     char key;
 
-    while (selecting)
-    {
+    while (selecting) {
         // displayMenu(menuOptions, selectedIndex);
-        system("cls");
+        // system("cls");
+        clrscr();
         cout << prompt << endl
              << endl;
 
@@ -189,7 +209,8 @@ int selectOption(const vector<string> &menuOptions, const string &prompt) {
             selecting = false;
         }
     }
-    system("cls");
+    // system("cls");
+    clrscr();
     // cout << "You selected: " << menuOptions[selectedIndex] << endl;
     return selectedIndex;
     // Perform action based on selectedIndex
@@ -227,7 +248,7 @@ int askQuantity() {
 
 void greetings() {
     seperator();
-    cout << endl;
+    cout<<Dobj.getWeekdayIndex();
     cout << "Greetings from Zaika Pizzeria\n (Aroma of Indian Flavours blended with Italian Cuisine)" << endl
          << endl
          << "\t\t\t\t\t\t\t\t" << Dobj.getFormattedTime() << endl;
@@ -237,36 +258,71 @@ void greetings() {
     // cout << "Hello User, What would like to have today" << endl;
 }
 
+void setOffer(){
+    sql::Connection* con = getConnection();
+    sql::PreparedStatement* pstmt = con->prepareStatement("SELECT * FROM offers where onWeekDay=?");
+    pstmt->setInt(1,Dobj.getWeekdayIndex());
+    sql::ResultSet* s = pstmt->executeQuery();
+
+    while(s->next()){
+        hasDiscount=true;
+        currOffer.weekDay=weekDay;
+        currOffer.title=s->getString("title");
+        // cout<<s->getString("title")<<endl;
+        currOffer.desc=s->getString("description");
+        currOffer.type=s->getString("itemType");
+        currOffer.discount=s->getInt("discount");
+        sleep(3);
+    }
+}
+
 void headers(){
     seperator();
-    cout << "Zaika Pizzeria Biller | Customer Name: " << userName << " | " << Dobj.getTime() << endl;
+    cout << "Zaika Pizzeria Biller | Customer Name: " << userName <<" | "<<currOffer.title<<":"<<currOffer.desc <<" | " << Dobj.getTime() << endl;
 }
 
 string sql2stdString(sql::SQLString ok){
     return ok.asStdString();
 }
 
+vector<string> resultSet2VecStr(sql::ResultSet* p,string& k){
+    vector<string> o;
+    while (p->next()){
+        o.push_back(sql2stdString(p->getString(k)));
+        cout<<o[o.size()-1];
+    }
+
+    return o;
+}
+
 void choosePizza(){
     sql::Connection* con = getConnection();
     sql::Statement* stmt = con->createStatement();
     map<float, sql::SQLString> pizzas;
+    vector<string> getSizes;
+
+    float choice;
+    sql::SQLString pizza, size;
+    int quantity;
     
     menu:
         headers();
         sql::ResultSet* pizzaCats = stmt->executeQuery("select distinct category from items where itemType='Pizza';");
         sql::PreparedStatement* pstmt = con->prepareStatement("SELECT DISTINCT name FROM items WHERE itemType = 'Pizza' AND category = ?");
         sql::PreparedStatement* catPriceStmt = con->prepareStatement("SELECT DISTINCT price FROM items WHERE itemType = 'Pizza' AND category = ?");
+        sql::ResultSet* sizes = stmt->executeQuery("select distinct size from items where size is not null;");
         cout<<left<<setfill(' ');
         seperator();
         cout << "Pizza" << endl;
         seperator();
-        sql::ResultSet* sizes = stmt->executeQuery("select distinct size from items where size is not null;");
+        
         // printf("%-40s","Items");
         cout<<setw(40)<<"Items";
         while(sizes->next()){
-            string h = "("+sql2stdString(sizes->getString("size"))+")";
+            string size = sql2stdString(sizes->getString("size"));
+            string h = "("+size+")";
+            getSizes.push_back(size);
             printf("%-20s",h);
-            
         }
         cout<<endl;
         star_seperator();
@@ -290,9 +346,8 @@ void choosePizza(){
 
             while(rs->next()){
                 cout<<" "<<catIter<<"."<<pizzIter<<" "<<rs->getString("name")<<endl;
-
-                pizzIter++;
                 pizzas[catIter+(pizzIter/10.0f)] = rs->getString("name");
+                pizzIter++;
             }
 
             delete rs;
@@ -301,6 +356,61 @@ void choosePizza(){
             star_seperator();
         }
 
+        // for (auto person : pizzas) {
+        //     cout << person.first << " is: " << person.second << "\n";
+        // }
+
+    choose_menu:
+        cout<<"Enter Choice as 1.1"<<endl;
+        cout<<"Select Pizza: ";
+        cin>>choice;
+        if (choice==0){
+            goto menu;
+        }
+        try{
+            cout<<pizzas.at(choice);
+            pizza = pizzas.at(choice);
+        } catch (const out_of_range& e){
+            clrscr();
+            cerr<<"Please try again"<<endl;
+            sleep(2);
+            clrscr();
+            goto menu;
+        }
+
+    choose_size:
+        headers();
+        seperator();
+        string prompt = "Select size for "+pizzas.at(choice)+" Pizza";
+        int sizeSel = selectOption(getSizes,prompt);
+        // cout<< getSizes[sizeSel]<<endl;
+        size=getSizes[sizeSel];
+        cout<<size<<endl;
+        quantity = askQuantity();
+
+    pizza_info:
+        sql::PreparedStatement* pizzaInfoStmt = con->prepareStatement("SELECT id,name,price,size FROM items WHERE name=? AND size=?");
+        pizzaInfoStmt->setString(1,pizza);
+        pizzaInfoStmt->setString(2,size);
+        sql::ResultSet* pizzaInfo = pizzaInfoStmt->executeQuery();
+        while(pizzaInfo->next()){
+            cout<<pizzaInfo->getInt("id")<<" "<<pizzaInfo->getString("name")<<" "<<pizzaInfo->getInt("price")<<" "<<pizzaInfo->getString("size")<<" "<<"Quantity: "<<quantity;
+        }
+    
+    
+    // choose_again:
+    //     int repeat;
+    //     cout<<"Want to select another Pizza"<<endl<<"1. Yes"<<endl<<"2. No"<<endl;
+    //     cin>>repeat;
+    //     switch(repeat){
+    //         case 1:
+    //             goto menu;
+    //             break;
+    //     }
+
+
+    
+    delete catPriceStmt;
     delete pizzaCats;
     delete stmt;
     delete pstmt;
@@ -327,7 +437,6 @@ void mainMenu(){
         chooseSides,
         chooseDrink,
         chooseCombo};
-
     seperator();
     string prompt = "Hello " + userName + ", What Would you like to have Today";
     int o = selectOption(menuOptions, prompt);
@@ -336,11 +445,12 @@ void mainMenu(){
 }
 
 int main(){
-menu:
-    // DateTimeObj Dobj;
-    greetings();
-    // cout<<Dobj.getWeekdayIndex();
-    mainMenu();
+    menu:
+        setOffer();
+        weekDay = Dobj.getWeekdayIndex();
+        system("mode 121,40");
+        greetings();
+        mainMenu();
 
     return 0;
 }
