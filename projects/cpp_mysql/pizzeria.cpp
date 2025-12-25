@@ -28,13 +28,9 @@ using namespace std;
 
 int sepLen = 120, Bc = 0, discountOffer = 0, weekDay;
 bool hasDiscount=false;
-int currUserId = 1, currOrderId = 0;
-string userName;
+int currOrderId = 0;
 
 
-#include <iostream>
-#include <chrono>
-#include <thread>
 
 void sleep(int secs) {
     // Sleep for 2 seconds
@@ -65,10 +61,7 @@ sql::Connection *getConnection() {
     return con;
 }
 
-void reset() {
-    sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = false, currUserId = 0;
-    userName = "";
-}
+
 
 enum itemTypes {
     Pizza,
@@ -142,9 +135,27 @@ struct Offer{
     sql::SQLString type;
 };
 
+struct Customer{
+    int id;
+    string name;
+};
+
+
+
 DateTimeObj Dobj;
 Offer currOffer;
+Customer currCust;
 
+void reset() {
+    sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = false;
+    memset(&currCust,0,sizeof(currCust));
+
+}
+
+
+void setCustomer(){
+    currCust.id=1;
+}
 
 int selectOption(const vector<string>& menuOptions, const string& prompt) {
     // vector<string> menuOptions = {"Option 1", "Option 2", "Option 3", "Exit"};
@@ -179,21 +190,17 @@ int selectOption(const vector<string>& menuOptions, const string& prompt) {
             // If it's an extended key (like an arrow key)
             key = _getch(); // Get the second character for the specific key
 
-            switch (key)
-            {
+            switch (key) {
             case KEY_UP:
-                if (selectedIndex > 0)
-                {
+                if (selectedIndex > 0) {
                     selectedIndex--;
                 }
-                else
-                {
+                else {
                     selectedIndex = menuOptions.size() - 1; // Wrap around to bottom
                 }
                 break;
             case KEY_DOWN:
-                if (selectedIndex < menuOptions.size() - 1)
-                {
+                if (selectedIndex < menuOptions.size() - 1) {
                     selectedIndex++;
                 }
                 else
@@ -218,16 +225,14 @@ int selectOption(const vector<string>& menuOptions, const string& prompt) {
 }
 
 void seperator() {
-    for (int i = 0; i < sepLen; i++)
-    {
+    for (int i = 0; i < sepLen; i++){
         cout << "=";
     }
     cout << endl;
 }
 
 void star_seperator() {
-    for (int i = 0; i < sepLen; i++)
-    {
+    for (int i = 0; i < sepLen; i++){
         cout << "*";
     }
     cout << endl;
@@ -236,7 +241,7 @@ void star_seperator() {
 void askName() {
     // sql::Connection* con = getConnection();
     cout << "Your Good name please: ";
-    getline(cin, userName);
+    getline(cin, currCust.name);
 }
 
 int askQuantity() {
@@ -278,7 +283,7 @@ void setOffer(){
 
 void headers(){
     seperator();
-    cout << "Zaika Pizzeria Biller | Customer Name: " << userName <<" | "<<currOffer.title<<":"<<currOffer.desc <<" | " << Dobj.getTime() << endl;
+    cout << "Zaika Pizzeria Biller | Customer Name: " << currCust.name <<" | "<<currOffer.title<<":"<<currOffer.desc <<" | " << Dobj.getTime() << endl;
 }
 
 string sql2stdString(sql::SQLString ok){
@@ -293,6 +298,11 @@ vector<string> resultSet2VecStr(sql::ResultSet* p,string& k){
     }
 
     return o;
+}
+
+void createOrder(int itemId, int quantity){
+    sql::Connection* con = getConnection();
+    sql::PreparedStatement = pstmt = con->prepareStatement("")
 }
 
 void choosePizza(){
@@ -332,7 +342,7 @@ void choosePizza(){
             sql::SQLString category = pizzaCats->getString("category");
             cout <<catIter<<". "<<category << endl;
             // printf("%-40s","");
-            cout<<setw(40)<<"";
+            cout<<setw(42)<<"";
             
             catPriceStmt->setString(1,category);
             sql::ResultSet* ps = catPriceStmt->executeQuery();
@@ -386,7 +396,13 @@ void choosePizza(){
         // cout<< getSizes[sizeSel]<<endl;
         size=getSizes[sizeSel];
         cout<<size<<endl;
+
+    ask_quantity:
         quantity = askQuantity();
+        if (quantity<1){
+            cout<<"Quantity should be 1 or above. Please try again"<<endl;
+            goto ask_quantity;    
+        }
 
     pizza_info:
         sql::PreparedStatement* pizzaInfoStmt = con->prepareStatement("SELECT id,name,price,size FROM items WHERE name=? AND size=?");
@@ -396,6 +412,8 @@ void choosePizza(){
         while(pizzaInfo->next()){
             cout<<pizzaInfo->getInt("id")<<" "<<pizzaInfo->getString("name")<<" "<<pizzaInfo->getInt("price")<<" "<<pizzaInfo->getString("size")<<" "<<"Quantity: "<<quantity;
         }
+
+    
     
     
     // choose_again:
@@ -416,13 +434,9 @@ void choosePizza(){
     delete pstmt;
 }
 
-void choosePasta()
-{
-}
+void choosePasta() {}
 
-void chooseDrink()
-{
-}
+void chooseDrink() {}
 
 void chooseSides() {}
 
@@ -438,16 +452,45 @@ void mainMenu(){
         chooseDrink,
         chooseCombo};
     seperator();
-    string prompt = "Hello " + userName + ", What Would you like to have Today";
+    string prompt = "Hello "+to_string(currOrderId)+" "+ currCust.name + ", What Would you like to have Today";
     int o = selectOption(menuOptions, prompt);
     // cout<<"Selected Option: "<< menuOptions[o] << endl;
     functptr[o]();
 }
 
+int getLastIdFromTable(string& table){
+    sql::Connection* con = getConnection();
+    sql::PreparedStatement* pstmt = con->prepareStatement("SELECT id FROM ? order by id desc limit 1");
+    sql::ResultSet* rs = pstmt->executeQuery();
+
+    int id;
+    while(rs->next()){
+        id=rs->getInt("id");
+    }
+    delete rs;
+    delete pstmt;
+    return id;
+
+}
+
+void createOrder(){
+    sql::Connection* con = getConnection();
+    sql::Statement* stmt = con->createStatement();
+    
+    stmt->execute("INSERT INTO orders(cId) VALUES(1)");
+
+    sql::ResultSet* rs =  stmt->executeQuery("SELECT id FROM orders ORDER BY id DESC LIMIT 1");
+    while(rs->next()){
+        currOrderId=rs->getInt("id");
+    }
+    delete stmt;
+}
+
 int main(){
     menu:
         setOffer();
-        weekDay = Dobj.getWeekdayIndex();
+        setCustomer();
+        createOrder();
         system("mode 121,40");
         greetings();
         mainMenu();
