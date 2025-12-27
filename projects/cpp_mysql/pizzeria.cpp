@@ -28,7 +28,7 @@ using namespace std;
 
 int sepLen = 120, Bc = 0, discountOffer = 0, weekDay;
 bool hasDiscount=false;
-int currOrderId = 0;
+int currOrderId = 1;
 
 
 
@@ -140,11 +140,19 @@ struct Customer{
     string name;
 };
 
+struct Order{
+    int id;
+    int quantity;
+    int price;
+    sql::SQLString type;
+};
+
 
 
 DateTimeObj Dobj;
 Offer currOffer;
 Customer currCust;
+
 
 void reset() {
     sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = false;
@@ -283,7 +291,12 @@ void setOffer(){
 
 void headers(){
     seperator();
-    cout << "Zaika Pizzeria Biller | Customer Name: " << currCust.name <<" | "<<currOffer.title<<":"<<currOffer.desc <<" | " << Dobj.getTime() << endl;
+    cout << "Zaika Pizzeria Biller | Customer Name: " << currCust.name ;
+    if (hasDiscount){
+        cout << " | " << currOffer.title << ":"<< currOffer.desc;
+    }
+    cout << " | " << Dobj.getTime() << endl;
+    
 }
 
 string sql2stdString(sql::SQLString ok){
@@ -300,9 +313,27 @@ vector<string> resultSet2VecStr(sql::ResultSet* p,string& k){
     return o;
 }
 
-void createOrder(int itemId, int quantity){
+void add2Order(Order item){
     sql::Connection* con = getConnection();
-    sql::PreparedStatement = pstmt = con->prepareStatement("")
+    sql::PreparedStatement* pstmt = con->prepareStatement("INSERT INTO order_items(orderId,itemId,quantity,price,itemDiscount) VALUES(?,?,?,?,?)");
+
+    int discount=0;
+    if (item.type==currOffer.type){
+        //if discount is there
+        discount=currOffer.discount;
+    }
+
+    pstmt->setInt(1,currOrderId);
+    pstmt->setInt(2,item.id);
+    pstmt->setInt(3,item.quantity);
+    pstmt->setInt(4,item.price);
+    pstmt->setInt(5,discount);
+
+    bool a = pstmt->execute();
+    if (a){
+        cout<<"Added to order_items"<<endl;
+    }
+
 }
 
 void choosePizza(){
@@ -405,12 +436,14 @@ void choosePizza(){
         }
 
     pizza_info:
-        sql::PreparedStatement* pizzaInfoStmt = con->prepareStatement("SELECT id,name,price,size FROM items WHERE name=? AND size=?");
+        sql::PreparedStatement* pizzaInfoStmt = con->prepareStatement("SELECT id,name,price,size,itemType FROM items WHERE name=? AND size=?");
         pizzaInfoStmt->setString(1,pizza);
         pizzaInfoStmt->setString(2,size);
         sql::ResultSet* pizzaInfo = pizzaInfoStmt->executeQuery();
         while(pizzaInfo->next()){
             cout<<pizzaInfo->getInt("id")<<" "<<pizzaInfo->getString("name")<<" "<<pizzaInfo->getInt("price")<<" "<<pizzaInfo->getString("size")<<" "<<"Quantity: "<<quantity;
+            Order currItem = {pizzaInfo->getInt("id"),quantity,pizzaInfo->getInt("price"),pizzaInfo->getString("itemType")};
+            add2Order(currItem);
         }
 
     
@@ -490,7 +523,7 @@ int main(){
     menu:
         setOffer();
         setCustomer();
-        createOrder();
+        // createOrder();
         system("mode 121,40");
         greetings();
         mainMenu();
