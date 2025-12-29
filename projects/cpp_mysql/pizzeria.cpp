@@ -28,7 +28,7 @@ using namespace std;
 
 int sepLen = 120, Bc = 0, discountOffer = 0, weekDay;
 bool hasDiscount=false;
-int currOrderId = 1;
+int currOrderId = 0;
 
 
 
@@ -61,8 +61,6 @@ sql::Connection *getConnection() {
     return con;
 }
 
-
-
 enum itemTypes {
     Pizza,
     Pasta,
@@ -79,52 +77,52 @@ enum servingSize {
 };
 
 class DateTimeObj {
-private:
-    chrono::system_clock::time_point current_time;
+    private:
+        chrono::system_clock::time_point current_time;
 
-public:
-    // Constructor to store the current time
-    DateTimeObj(){
-        current_time = chrono::system_clock::now();
-    }
+    public:
+        // Constructor to store the current time
+        DateTimeObj(){
+            current_time = chrono::system_clock::now();
+        }
 
-    // Method to get formatted time as string (e.g., "Sunday, December 21, 2025 14:30:00")
-    string getFormattedTime() const {
-        time_t time_t_now = chrono::system_clock::to_time_t(current_time);
-        stringstream ss;
-        ss << put_time(localtime(&time_t_now), "%a, %B %d, %Y %I:%M %p");
-        return ss.str();
-    }
+        // Method to get formatted time as string (e.g., "Sunday, December 21, 2025 14:30:00")
+        string getFormattedTime() const {
+            time_t time_t_now = chrono::system_clock::to_time_t(current_time);
+            stringstream ss;
+            ss << put_time(localtime(&time_t_now), "%a, %B %d, %Y %I:%M %p");
+            return ss.str();
+        }
 
-    string getTime() const {
-        time_t time_t_now = chrono::system_clock::to_time_t(current_time);
-        stringstream ss;
-        ss << put_time(localtime(&time_t_now), "%I:%M %p");
-        return ss.str();
-    }
+        string getTime() const {
+            time_t time_t_now = chrono::system_clock::to_time_t(current_time);
+            stringstream ss;
+            ss << put_time(localtime(&time_t_now), "%I:%M %p");
+            return ss.str();
+        }
 
-    // Method to get the weekday index (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-    int getWeekdayIndex() const {
-        time_t time_t_now = chrono::system_clock::to_time_t(current_time);
-        tm tm = *localtime(&time_t_now);
-        return tm.tm_wday; // Weekday index (0 = Sunday, 6 = Saturday)
-    }
+        // Method to get the weekday index (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+        int getWeekdayIndex() const {
+            time_t time_t_now = chrono::system_clock::to_time_t(current_time);
+            tm tm = *localtime(&time_t_now);
+            return tm.tm_wday; // Weekday index (0 = Sunday, 6 = Saturday)
+        }
 
-    // Method to get the abbreviated weekday name (e.g., "Sun", "Mon")
-    string getWeekdayAbbr() const {
-        time_t time_t_now = chrono::system_clock::to_time_t(current_time);
-        stringstream ss;
-        ss << put_time(localtime(&time_t_now), "%a"); // Abbreviated weekday name
-        return ss.str();
-    }
+        // Method to get the abbreviated weekday name (e.g., "Sun", "Mon")
+        string getWeekdayAbbr() const {
+            time_t time_t_now = chrono::system_clock::to_time_t(current_time);
+            stringstream ss;
+            ss << put_time(localtime(&time_t_now), "%a"); // Abbreviated weekday name
+            return ss.str();
+        }
 
-    // Method to get the full weekday name (e.g., "Sunday", "Monday")
-    string getWeekdayFull() const {
-        time_t time_t_now = chrono::system_clock::to_time_t(current_time);
-        stringstream ss;
-        ss << put_time(localtime(&time_t_now), "%A"); // Full weekday name
-        return ss.str();
-    }
+        // Method to get the full weekday name (e.g., "Sunday", "Monday")
+        string getWeekdayFull() const {
+            time_t time_t_now = chrono::system_clock::to_time_t(current_time);
+            stringstream ss;
+            ss << put_time(localtime(&time_t_now), "%A"); // Full weekday name
+            return ss.str();
+        }
 };
 
 struct Offer{
@@ -145,9 +143,8 @@ struct Order{
     int quantity;
     int price;
     sql::SQLString type;
+    sql::SQLString name;
 };
-
-
 
 DateTimeObj Dobj;
 Offer currOffer;
@@ -160,9 +157,48 @@ void reset() {
 
 }
 
+int getLastIdFromTable(const std::string& table) {
+    sql::Connection* con = getConnection();
+    std::string query ="SELECT id FROM " + table + " ORDER BY id DESC LIMIT 1";
 
-void setCustomer(){
-    currCust.id=1;
+    sql::Statement* stmt = con->createStatement();
+    sql::ResultSet* rs = stmt->executeQuery(query);
+
+    int id = -1;
+    if (rs->next()) {
+        id = rs->getInt("id");
+    }
+
+    delete rs;
+    delete stmt;
+    return id;
+}
+
+
+void createCustomer(){
+    sql::Connection* con = getConnection();
+    sql::PreparedStatement* pstmt = con->prepareStatement("INSERT INTO customers(name) VALUES(?)");
+    pstmt->setString(1,currCust.name);
+    pstmt->execute();
+    string t = "customers";
+    currCust.id = getLastIdFromTable(t);
+
+    delete pstmt;
+}
+
+void createOrder(){
+    sql::Connection* con = getConnection();
+    sql::PreparedStatement* stmt = con->prepareStatement("INSERT INTO orders(cId) VALUES(?)");
+    stmt->setInt(1,currCust.id);
+    stmt->execute();
+
+    // sql::ResultSet* rs =  stmt->executeQuery("SELECT id FROM orders ORDER BY id DESC LIMIT 1");
+    // while(rs->next()){
+    //     currOrderId=rs->getInt("id");
+    // }
+    string t = "orders";
+    currOrderId = getLastIdFromTable(t);
+    delete stmt;
 }
 
 int selectOption(const vector<string>& menuOptions, const string& prompt) {
@@ -266,7 +302,6 @@ void greetings() {
          << endl
          << "\t\t\t\t\t\t\t\t" << Dobj.getFormattedTime() << endl;
     seperator();
-    cout << endl;
     askName();
     // cout << "Hello User, What would like to have today" << endl;
 }
@@ -315,7 +350,7 @@ vector<string> resultSet2VecStr(sql::ResultSet* p,string& k){
 
 void add2Order(Order item){
     sql::Connection* con = getConnection();
-    sql::PreparedStatement* pstmt = con->prepareStatement("INSERT INTO order_items(orderId,itemId,quantity,price,itemDiscount) VALUES(?,?,?,?,?)");
+    sql::PreparedStatement* pstmt = con->prepareStatement("INSERT INTO order_items(orderId,itemId,quantity,price,itemDiscount,name) VALUES(?,?,?,?,?,?)");
 
     int discount=0;
     if (item.type==currOffer.type){
@@ -328,11 +363,12 @@ void add2Order(Order item){
     pstmt->setInt(3,item.quantity);
     pstmt->setInt(4,item.price);
     pstmt->setInt(5,discount);
+    pstmt->setString(6,item.name);
 
     bool a = pstmt->execute();
-    if (a){
-        cout<<"Added to order_items"<<endl;
-    }
+    // if (a){
+    //     cout<<"Added to order_items"<<endl;
+    // }
 
 }
 
@@ -426,7 +462,7 @@ void choosePizza(){
         int sizeSel = selectOption(getSizes,prompt);
         // cout<< getSizes[sizeSel]<<endl;
         size=getSizes[sizeSel];
-        cout<<size<<endl;
+        cout<<"Select Quantity for the selected Pizza"<<pizza<<"; "<<size<<endl;
 
     ask_quantity:
         quantity = askQuantity();
@@ -442,23 +478,26 @@ void choosePizza(){
         sql::ResultSet* pizzaInfo = pizzaInfoStmt->executeQuery();
         while(pizzaInfo->next()){
             cout<<pizzaInfo->getInt("id")<<" "<<pizzaInfo->getString("name")<<" "<<pizzaInfo->getInt("price")<<" "<<pizzaInfo->getString("size")<<" "<<"Quantity: "<<quantity;
-            Order currItem = {pizzaInfo->getInt("id"),quantity,pizzaInfo->getInt("price"),pizzaInfo->getString("itemType")};
+            sql::SQLString name = pizzaInfo->getString("name")+" "+ pizzaInfo->getString("size");
+            Order currItem = {pizzaInfo->getInt("id"),quantity,pizzaInfo->getInt("price"),pizzaInfo->getString("itemType"),name};
             add2Order(currItem);
         }
+        Bc++;
+
+        delete pizzaInfo;
+        delete pizzaInfoStmt;
 
     
-    
-    
-    // choose_again:
-    //     int repeat;
-    //     cout<<"Want to select another Pizza"<<endl<<"1. Yes"<<endl<<"2. No"<<endl;
-    //     cin>>repeat;
-    //     switch(repeat){
-    //         case 1:
-    //             goto menu;
-    //             break;
-    //     }
-
+    choose_again:
+        vector<string> options = {"Yes, i would like to order more","No, I am fine"};
+        int repeat = selectOption(options,"Would you like to order another pizza?");
+        if (repeat==0){
+            pizzas.clear();
+            getSizes.clear();
+            quantity=0,choice=0;
+            pizza="",size="";
+            goto menu;
+        }
 
     
     delete catPriceStmt;
@@ -475,58 +514,100 @@ void chooseSides() {}
 
 void chooseCombo() {}
 
-void mainMenu(){
-    vector<string> menuOptions = {"Pizza", "Pasta", "Sides & Dips", "Coldrinks", "Combo Offers"};
+float calculateDiscount(float originalPrice, float discountPercentage) {
+    float discountAmount = (originalPrice * discountPercentage) / 100;
+    float finalPrice = originalPrice - discountAmount;
+    return finalPrice;
+}
 
+int gimmeTheBillMan(){
+    if (Bc==0){
+        return 0;
+    }
+    sql::Connection* con = getConnection();
+    sql::Statement* stmt = con->createStatement();
+    sql::ResultSet* rs= stmt->executeQuery("SELECT * FROM order_items WHERE orderId="+to_string(currOrderId));
+
+    int total=0, subtotal=0;
+    clrscr();
+    seperator();
+    cout<<"Customer Name: "<<currCust.name<<endl;
+    cout<<"Bill Generated at: "
+        <<Dobj.getFormattedTime()<<endl;
+    seperator();
+    cout<<left<<setfill(' ');
+    cout<<setw(50)<<"Item"
+        <<setw(10)<<"Quantity"
+        <<setw(10)<<"Discount"
+        <<setw(10)<<"Price"
+        <<setw(10)<<"Total"<<endl;
+    seperator();
+    while(rs->next()){
+        int price = rs->getInt("price"),discount = rs->getInt("itemDiscount"), quantity = rs->getInt("quantity"), value = 0;
+        
+        if (discount>0){
+            value = calculateDiscount(price,discount);
+            
+        } else {
+            value = price;
+        }
+
+        value = value * quantity;
+        subtotal+=(price*quantity);
+        total += value;
+
+        cout<<setw(50)<<rs->getString("name")
+            <<setw(10)<<quantity
+            <<setw(10)<<discount
+            <<setw(10)<<price
+            <<setw(10)<<value<<endl;        
+    }
+    seperator();
+    // cout<<left<<setw(50)<<"You Saved: "<<to_string(subtotal-total)<<"; "
+    //     <<setw(10)<<"Total"
+    //     <<setw(10)<<total<<endl;
+    printf("%-10s%-59d%-10s %-10d\n","You Saved:",subtotal-total,"Total",total);
+    seperator();    
+    cout<<"THANKYOU FOR VISITING US. HAVE A GREAT DAY"<<endl;
+    seperator();
+    return 0;
+}
+
+int mainMenu(){
     void (*functptr[])() = {
         choosePizza,
         choosePasta,
         chooseSides,
         chooseDrink,
-        chooseCombo};
-    seperator();
-    string prompt = "Hello "+to_string(currOrderId)+" "+ currCust.name + ", What Would you like to have Today";
-    int o = selectOption(menuOptions, prompt);
-    // cout<<"Selected Option: "<< menuOptions[o] << endl;
-    functptr[o]();
-}
-
-int getLastIdFromTable(string& table){
-    sql::Connection* con = getConnection();
-    sql::PreparedStatement* pstmt = con->prepareStatement("SELECT id FROM ? order by id desc limit 1");
-    sql::ResultSet* rs = pstmt->executeQuery();
-
-    int id;
-    while(rs->next()){
-        id=rs->getInt("id");
-    }
-    delete rs;
-    delete pstmt;
-    return id;
-
-}
-
-void createOrder(){
-    sql::Connection* con = getConnection();
-    sql::Statement* stmt = con->createStatement();
-    
-    stmt->execute("INSERT INTO orders(cId) VALUES(1)");
-
-    sql::ResultSet* rs =  stmt->executeQuery("SELECT id FROM orders ORDER BY id DESC LIMIT 1");
-    while(rs->next()){
-        currOrderId=rs->getInt("id");
-    }
-    delete stmt;
+        chooseCombo,
+    };
+    menu:
+        vector<string> menuOptions = {"Pizza", "Pasta", "Sides & Dips", "Coldrinks", "Combo Offers"};
+        if (Bc>0){
+            menuOptions.push_back("Show Bill");
+        }
+        seperator();
+        string prompt = "Hello "+to_string(currOrderId)+" "+ currCust.name + ", What Would you like to have Today";
+        int o = selectOption(menuOptions, prompt);
+        // cout<<"Selected Option: "<< menuOptions[o] << endl;
+        if (menuOptions.size()-1==o){
+            return 0;
+        }
+        functptr[o]();
+        goto menu;
 }
 
 int main(){
     menu:
         setOffer();
-        setCustomer();
-        // createOrder();
         system("mode 121,40");
         greetings();
+        createCustomer();
+        createOrder();
         mainMenu();
+        gimmeTheBillMan();
+        reset();
+        goto menu;
 
     return 0;
 }
