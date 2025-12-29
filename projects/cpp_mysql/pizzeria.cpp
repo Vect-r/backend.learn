@@ -151,10 +151,10 @@ Offer currOffer;
 Customer currCust;
 
 
-void reset() {
+void resetFlags() {
     sepLen = 120, Bc = 0, discountOffer = 0, weekDay, hasDiscount = false;
-    memset(&currCust,0,sizeof(currCust));
-
+    // memset(&currCust,0,sizeof(currCust));
+    currCust = {};
 }
 
 int getLastIdFromTable(const std::string& table) {
@@ -180,8 +180,8 @@ void createCustomer(){
     sql::PreparedStatement* pstmt = con->prepareStatement("INSERT INTO customers(name) VALUES(?)");
     pstmt->setString(1,currCust.name);
     pstmt->execute();
-    string t = "customers";
-    currCust.id = getLastIdFromTable(t);
+    // string t = "customers";
+    currCust.id = getLastIdFromTable("customers");
 
     delete pstmt;
 }
@@ -302,7 +302,9 @@ void greetings() {
          << endl
          << "\t\t\t\t\t\t\t\t" << Dobj.getFormattedTime() << endl;
     seperator();
-    askName();
+    // askName();
+    cout<<"Your name please? ";
+    cin>>currCust.name;
     // cout << "Hello User, What would like to have today" << endl;
 }
 
@@ -520,6 +522,11 @@ float calculateDiscount(float originalPrice, float discountPercentage) {
     return finalPrice;
 }
 
+void pressKey(){
+    printf("\nPress Any Key to Continue...");
+    getch();
+}
+
 int gimmeTheBillMan(){
     if (Bc==0){
         return 0;
@@ -527,6 +534,9 @@ int gimmeTheBillMan(){
     sql::Connection* con = getConnection();
     sql::Statement* stmt = con->createStatement();
     sql::ResultSet* rs= stmt->executeQuery("SELECT * FROM order_items WHERE orderId="+to_string(currOrderId));
+
+    sql::PreparedStatement* pstmt = con->prepareStatement("UPDATE orders SET subTotal=?, grandTotal=? WHERE id=?");
+
 
     int total=0, subtotal=0;
     clrscr();
@@ -570,6 +580,14 @@ int gimmeTheBillMan(){
     seperator();    
     cout<<"THANKYOU FOR VISITING US. HAVE A GREAT DAY"<<endl;
     seperator();
+    pstmt->setInt(1,subtotal);
+    pstmt->setInt(2,total);
+    pstmt->setInt(3,currOrderId);
+    pstmt->execute();
+    pressKey();
+
+    delete pstmt;
+    delete stmt;
     return 0;
 }
 
@@ -598,15 +616,17 @@ int mainMenu(){
 }
 
 int main(){
+    setOffer();
+    system("mode 121,40");
+
     menu:
-        setOffer();
-        system("mode 121,40");
+        clrscr();
         greetings();
         createCustomer();
         createOrder();
         mainMenu();
         gimmeTheBillMan();
-        reset();
+        resetFlags();
         goto menu;
 
     return 0;
