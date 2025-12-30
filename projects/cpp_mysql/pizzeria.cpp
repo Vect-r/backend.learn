@@ -147,6 +147,12 @@ struct Order{
     sql::SQLString name;
 };
 
+struct Item{
+    int id;
+    sql::SQLString name;
+    int price;
+};
+
 DateTimeObj Dobj;
 Offer currOffer;
 Customer currCust;
@@ -520,12 +526,6 @@ void choosePasta() {
     sql::Statement* stmt = con->createStatement();
     sql::ResultSet* allPastas = stmt->executeQuery("SELECT * FROM items WHERE itemType='Pasta'");
 
-    struct Item{
-        int id;
-        sql::SQLString name;
-        int price;
-    };
-
     sql::SQLString itemType = "Pasta";
 
     map<int, Item> items;
@@ -546,7 +546,7 @@ void choosePasta() {
     }
 
     menu:
-        int choice = selectOption(menuOptions,"Which Pasta would you like to order");
+        int choice = selectOption(menuOptions,"Which Pasta you would like to order");
 
     ask_quantity:
         quantity = askQuantity();
@@ -573,11 +573,170 @@ void choosePasta() {
     delete allPastas, stmt;
 }
 
-void chooseDrink() {}
+void chooseDrink() {
+    sql::Connection* con = getConnection();
+    sql::Statement* stmt = con->createStatement();
+    sql::ResultSet* allDrinks = stmt->executeQuery("SELECT DISTINCT name FROM items WHERE itemType='Drink'");
+    sql::ResultSet* allSizes = stmt->executeQuery("SELECT DISTINCT size FROM items WHERE itemType='Drink'");
 
-void chooseSides() {}
 
-void chooseCombo() {}
+    sql::SQLString itemType = "Drink";
+
+    map<int, Item> items;
+    vector<string> menuOptions;
+
+    vector<string> sizes;
+
+    int quantity,o=0;
+    while(allDrinks->next()){
+        stringstream ss; 
+        string name=allDrinks->getString("name");
+        int id=allDrinks->getInt("id"),price=allDrinks->getInt("price");
+
+        ss<<name<<" Rs."<< price<<endl;
+        menuOptions.push_back(ss.str());
+        // items[id]={name,price};
+        items[o]={id,name,price};
+        o++;
+    }
+
+    while(allSizes->next()){
+        sizes.push_back(sql2stdString(allSizes->getString("size")));
+    }
+
+    menu:
+        int choice = selectOption(menuOptions,"Which Drink you would like to order");
+
+    select_size:
+        int size = selectOption(sizes,"Select Size");
+
+    ask_quantity:
+        quantity = askQuantity();
+        if (quantity<1){
+            cout<<"Quantity should be 1 or above. Please try again"<<endl;
+            goto ask_quantity;    
+        }
+
+    info:
+        Bc++;
+        Item c = items[choice];
+        Order currItem = {c.id,quantity,c.price,itemType,c.name};
+        add2Order(currItem);
+
+
+    choose_again:
+        vector<string> options = {"Yes, i would like to order more","No, I am fine"};
+        int repeat = selectOption(options,"Would you like to order another Drink?");
+        if (repeat==0){
+            quantity=0,choice=0;
+            goto menu;
+        }
+        
+    delete allDrinks, stmt;
+}
+
+void chooseSides() {
+    sql::Connection* con = getConnection();
+    sql::Statement* stmt = con->createStatement();
+    sql::ResultSet* allSides = stmt->executeQuery("SELECT * FROM items WHERE itemType='Sides'");
+
+    sql::SQLString itemType = "Sides";
+
+    map<int, Item> items;
+    vector<string> menuOptions;
+
+    int quantity,o=0;
+    while(allSides->next()){
+        stringstream ss; 
+        string name=allSides->getString("name");
+        int id=allSides->getInt("id"),price=allSides->getInt("price");
+
+        ss<<name<<" Rs."<< price;
+        menuOptions.push_back(ss.str());
+        // items[id]={name,price};
+        items[o]={id,name,price};
+        o++;
+    }
+
+    menu:
+        int choice = selectOption(menuOptions,"Which Sides & Dips you would like to order");
+
+    ask_quantity:
+        quantity = askQuantity();
+        if (quantity<1){
+            cout<<"Quantity should be 1 or above. Please try again"<<endl;
+            goto ask_quantity;    
+        }
+
+    info:
+        Bc++;
+        Item c = items[choice];
+        Order currItem = {c.id,quantity,c.price,itemType,c.name};
+        add2Order(currItem);
+
+
+    choose_again:
+        vector<string> options = {"Yes, i would like to order more","No, I am fine"};
+        int repeat = selectOption(options,"Would you like to order another Sides & Dips?");
+        if (repeat==0){
+            quantity=0,choice=0;
+            goto menu;
+        }
+        
+    delete allSides, stmt;
+}
+
+void chooseCombo() {
+    sql::Connection* con = getConnection();
+    sql::Statement* stmt = con->createStatement();
+    sql::ResultSet* allSides = stmt->executeQuery("SELECT * FROM items WHERE itemType='Combo'");
+    sql::ResultSet* drinks = stmt->executeQuery("SELECT * FROM items WHERE itemType='Drink'");
+
+    sql::SQLString itemType = "Sides";
+
+    map<int, Item> items;
+    vector<string> menuOptions;
+
+    int quantity,o=0;
+    while(allSides->next()){
+        stringstream ss; 
+        string name=allSides->getString("name");
+        int id=allSides->getInt("id"),price=allSides->getInt("price");
+
+        ss<<name<<" Rs."<< price;
+        menuOptions.push_back(ss.str());
+        // items[id]={name,price};
+        items[o]={id,name,price};
+        o++;
+    }
+
+    menu:
+        int choice = selectOption(menuOptions,"Which Sides & Dips you would like to order");
+
+    ask_quantity:
+        quantity = askQuantity();
+        if (quantity<1){
+            cout<<"Quantity should be 1 or above. Please try again"<<endl;
+            goto ask_quantity;    
+        }
+
+    info:
+        Bc++;
+        Item c = items[choice];
+        Order currItem = {c.id,quantity,c.price,itemType,c.name};
+        add2Order(currItem);
+
+
+    choose_again:
+        vector<string> options = {"Yes, i would like to order more","No, I am fine"};
+        int repeat = selectOption(options,"Would you like to order another Sides & Dips?");
+        if (repeat==0){
+            quantity=0,choice=0;
+            goto menu;
+        }
+        
+    delete allSides, stmt;
+}
 
 float calculateDiscount(float originalPrice, float discountPercentage) {
     float discountAmount = (originalPrice * discountPercentage) / 100;

@@ -74,6 +74,7 @@ CREATE TABLE order_items (
     quantity INT NOT NULL,
     price INT NOT NULL,                  -- snapshot item price
     itemDiscount INT,
+    name VARCHAR(50) NOT NULL,
 
     CONSTRAINT fk_order_items_orders
         FOREIGN KEY (orderId) REFERENCES orders(id),
@@ -190,16 +191,16 @@ INSERT INTO items (name, itemType, category, price, description) VALUES
    DRINKS
    ======================= */
 
-INSERT INTO items (name, itemType, category, price) VALUES
-('Coca Cola 250Ml','Drink','Cold Drink',20),
-('Sprite 250Ml','Drink','Cold Drink',20),
-('Fanta 250 Ml','Drink','Cold Drink',20),
-('Coca Cola 500Ml','Drink','Cold Drink',35),
-('Sprite 500Ml','Drink','Cold Drink',35),
-('Fanta 500 Ml','Drink','Cold Drink',35),
-('Coca Cola 1L','Drink','Cold Drink',55),
-('Sprite 1L','Drink','Cold Drink',55),
-('Fanta 1L','Drink','Cold Drink',55);
+INSERT INTO items (name, itemType, category, price,size) VALUES
+('Coca Cola','Drink','Cold Drink',20,"250Ml"),
+('Sprite','Drink','Cold Drink',20,"250ML"),
+('Fanta','Drink','Cold Drink',20,"250ML"),
+('Coca Cola ','Drink','Cold Drink',35,"500ML"),
+('Sprite','Drink','Cold Drink',35,"500ML"),
+('Fanta','Drink','Cold Drink',35,"500ML"),
+('Coca Cola ','Drink','Cold Drink',55,"1L"),
+('Sprite','Drink','Cold Drink',55,"1L"),
+('Fanta','Drink','Cold Drink',55,"1L");
 
 
 /* =======================
