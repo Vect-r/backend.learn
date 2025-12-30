@@ -19,6 +19,7 @@
 #include <thread>
 #include <iomanip>
 #include <sstream>
+#include <variant>
 
 using namespace std;
 
@@ -374,6 +375,12 @@ void add2Order(Order item){
 
 }
 
+void pressKey(){
+    printf("\nPress Any Key to Continue...");
+    getch();
+}
+
+
 void choosePizza(){
     sql::Connection* con = getConnection();
     sql::Statement* stmt = con->createStatement();
@@ -508,7 +515,63 @@ void choosePizza(){
     delete pstmt;
 }
 
-void choosePasta() {}
+void choosePasta() {
+    sql::Connection* con = getConnection();
+    sql::Statement* stmt = con->createStatement();
+    sql::ResultSet* allPastas = stmt->executeQuery("SELECT * FROM items WHERE itemType='Pasta'");
+
+    struct Item{
+        int id;
+        sql::SQLString name;
+        int price;
+    };
+
+    sql::SQLString itemType = "Pasta";
+
+    map<int, Item> items;
+
+    vector<string> menuOptions;
+
+    int quantity,o=0;
+    while(allPastas->next()){
+        stringstream ss; 
+        string name=allPastas->getString("name"),description = allPastas->getString("description");
+        int id=allPastas->getInt("id"),price=allPastas->getInt("price");
+
+        ss<<name<<" Rs."<< price<<"\n\t"<<description;
+        menuOptions.push_back(ss.str());
+        // items[id]={name,price};
+        items[o]={id,name,price};
+        o++;
+    }
+
+    menu:
+        int choice = selectOption(menuOptions,"Which Pasta would you like to order");
+
+    ask_quantity:
+        quantity = askQuantity();
+        if (quantity<1){
+            cout<<"Quantity should be 1 or above. Please try again"<<endl;
+            goto ask_quantity;    
+        }
+
+    info:
+        Bc++;
+        Item c = items[choice];
+        Order currItem = {c.id,quantity,c.price,itemType,c.name};
+        add2Order(currItem);
+
+
+    choose_again:
+        vector<string> options = {"Yes, i would like to order more","No, I am fine"};
+        int repeat = selectOption(options,"Would you like to order another Pasta?");
+        if (repeat==0){
+            quantity=0,choice=0;
+            goto menu;
+        }
+        
+    delete allPastas, stmt;
+}
 
 void chooseDrink() {}
 
@@ -522,10 +585,6 @@ float calculateDiscount(float originalPrice, float discountPercentage) {
     return finalPrice;
 }
 
-void pressKey(){
-    printf("\nPress Any Key to Continue...");
-    getch();
-}
 
 int gimmeTheBillMan(){
     if (Bc==0){
