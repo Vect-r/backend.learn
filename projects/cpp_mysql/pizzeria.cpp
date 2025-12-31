@@ -19,7 +19,6 @@
 #include <thread>
 #include <iomanip>
 #include <sstream>
-#include <variant>
 
 using namespace std;
 
@@ -347,7 +346,7 @@ string sql2stdString(sql::SQLString ok){
     return ok.asStdString();
 }
 
-vector<string> resultSet2VecStr(sql::ResultSet* p,string& k){
+vector<string> resultSet2VecStr(sql::ResultSet* p,const std::string& k){
     vector<string> o;
     while (p->next()){
         o.push_back(sql2stdString(p->getString(k)));
@@ -402,7 +401,7 @@ void choosePizza(){
         sql::ResultSet* pizzaCats = stmt->executeQuery("select distinct category from items where itemType='Pizza';");
         sql::PreparedStatement* pstmt = con->prepareStatement("SELECT DISTINCT name FROM items WHERE itemType = 'Pizza' AND category = ?");
         sql::PreparedStatement* catPriceStmt = con->prepareStatement("SELECT DISTINCT price FROM items WHERE itemType = 'Pizza' AND category = ?");
-        sql::ResultSet* sizes = stmt->executeQuery("select distinct size from items where size is not null;");
+        sql::ResultSet* sizes = stmt->executeQuery("select distinct size from items where itemType='Pizza' AND size is not null;");
         cout<<left<<setfill(' ');
         seperator();
         cout << "Pizza" << endl;
@@ -578,58 +577,45 @@ void chooseDrink() {
     sql::Statement* stmt = con->createStatement();
     sql::ResultSet* allDrinks = stmt->executeQuery("SELECT DISTINCT name FROM items WHERE itemType='Drink'");
     sql::ResultSet* allSizes = stmt->executeQuery("SELECT DISTINCT size FROM items WHERE itemType='Drink'");
+    sql::PreparedStatement* pstmt= con->prepareStatement("SELECT * FROM items WHERE name=? AND size=? AND itemType='Drink'");
 
 
     sql::SQLString itemType = "Drink";
+    vector<string> drinks = resultSet2VecStr(allDrinks,"name");
+    vector<string> sizes = resultSet2VecStr(allSizes,"size");
 
-    map<int, Item> items;
-    vector<string> menuOptions;
-
-    vector<string> sizes;
-
-    int quantity,o=0;
-    while(allDrinks->next()){
-        stringstream ss; 
-        string name=allDrinks->getString("name");
-        int id=allDrinks->getInt("id"),price=allDrinks->getInt("price");
-
-        ss<<name<<" Rs."<< price<<endl;
-        menuOptions.push_back(ss.str());
-        // items[id]={name,price};
-        items[o]={id,name,price};
-        o++;
-    }
-
-    while(allSizes->next()){
-        sizes.push_back(sql2stdString(allSizes->getString("size")));
-    }
-
-    menu:
-        int choice = selectOption(menuOptions,"Which Drink you would like to order");
-
+    select_drink:
+        int drink = selectOption(drinks,"Which Drink would you like to order");
+    
     select_size:
-        int size = selectOption(sizes,"Select Size");
+        int size = selectOption(sizes,"Select Size for "+drinks[drink]+"\n");
 
     ask_quantity:
-        quantity = askQuantity();
+        int quantity = askQuantity();
         if (quantity<1){
             cout<<"Quantity should be 1 or above. Please try again"<<endl;
             goto ask_quantity;    
         }
 
     info:
-        Bc++;
-        Item c = items[choice];
-        Order currItem = {c.id,quantity,c.price,itemType,c.name};
+        pstmt->setString(1,drinks[drink]);
+        pstmt->setString(2,sizes[size]);
+        // Order currItem = {c.id,quantity,c.price,itemType,c.name};
+        sql::ResultSet* rs = pstmt->executeQuery();
+        Order currItem;
+        while(rs->next()){
+            sql::SQLString name = rs->getString("name")+" "+rs->getString("size");
+            currItem = {rs->getInt("id"),quantity,rs->getInt("price"),rs->getString("itemType"),name};
+        }
         add2Order(currItem);
+        Bc++;
 
 
     choose_again:
         vector<string> options = {"Yes, i would like to order more","No, I am fine"};
         int repeat = selectOption(options,"Would you like to order another Drink?");
         if (repeat==0){
-            quantity=0,choice=0;
-            goto menu;
+            goto select_drink;
         }
         
     delete allDrinks, stmt;
@@ -689,32 +675,38 @@ void chooseSides() {
 void chooseCombo() {
     sql::Connection* con = getConnection();
     sql::Statement* stmt = con->createStatement();
-    sql::ResultSet* allSides = stmt->executeQuery("SELECT * FROM items WHERE itemType='Combo'");
-    sql::ResultSet* drinks = stmt->executeQuery("SELECT * FROM items WHERE itemType='Drink'");
+    sql::ResultSet* allCombos = stmt->executeQuery("SELECT * FROM items WHERE itemType='Combo'");
+    sql::ResultSet* allDrinks = stmt->executeQuery("SELECT DISTINCT name FROM items WHERE itemType='Drink'");
 
-    sql::SQLString itemType = "Sides";
+    sql::SQLString itemType = "Combo";
 
     map<int, Item> items;
     vector<string> menuOptions;
+    vector<string> drinks = resultSet2VecStr(allDrinks,"name");
 
-    int quantity,o=0;
-    while(allSides->next()){
+    int o=0;
+    while(allCombos->next()){
         stringstream ss; 
-        string name=allSides->getString("name");
-        int id=allSides->getInt("id"),price=allSides->getInt("price");
+        string name=allCombos->getString("name"),description = allCombos->getString("description");
+        int id=allCombos->getInt("id"),price=allCombos->getInt("price");
 
-        ss<<name<<" Rs."<< price;
+        ss<<name<<" Rs."<< price<<"\n\t"<<description;
         menuOptions.push_back(ss.str());
         // items[id]={name,price};
         items[o]={id,name,price};
         o++;
     }
+   
 
     menu:
-        int choice = selectOption(menuOptions,"Which Sides & Dips you would like to order");
+        int choice = selectOption(menuOptions,"Which Combo you would like to order");
+
+    
+    select_drink:
+        int drink = selectOption(drinks,"Select Drink for selected Combo: "+items[choice].name);
 
     ask_quantity:
-        quantity = askQuantity();
+        int quantity = askQuantity();
         if (quantity<1){
             cout<<"Quantity should be 1 or above. Please try again"<<endl;
             goto ask_quantity;    
@@ -723,7 +715,8 @@ void chooseCombo() {
     info:
         Bc++;
         Item c = items[choice];
-        Order currItem = {c.id,quantity,c.price,itemType,c.name};
+        sql::SQLString name = c.name+" "+drinks[drink];
+        Order currItem = {c.id,quantity,c.price,itemType,name};
         add2Order(currItem);
 
 
@@ -735,7 +728,7 @@ void chooseCombo() {
             goto menu;
         }
         
-    delete allSides, stmt;
+    delete allCombos, allDrinks, stmt;
 }
 
 float calculateDiscount(float originalPrice, float discountPercentage) {
@@ -744,7 +737,7 @@ float calculateDiscount(float originalPrice, float discountPercentage) {
     return finalPrice;
 }
 
-
+    
 int gimmeTheBillMan(){
     if (Bc==0){
         return 0;
@@ -826,7 +819,7 @@ int mainMenu(){
         string prompt = "Hello "+to_string(currOrderId)+" "+ currCust.name + ", What Would you like to have Today";
         int o = selectOption(menuOptions, prompt);
         // cout<<"Selected Option: "<< menuOptions[o] << endl;
-        if (menuOptions.size()-1==o){
+        if (Bc>0 && menuOptions.size()-1==o){
             return 0;
         }
         functptr[o]();
