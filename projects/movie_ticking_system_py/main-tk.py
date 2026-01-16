@@ -8,7 +8,12 @@ movies=["Dhurandhar","Ikkis","Raja Saab"]
 
 def movie_choose():
     def on_movie_select():
-        o.config(text=f"Selected Movie, {movies[v.get()]}")
+        gl_state['movie']=v.get()
+        o.config(text=f"Selected Movie, {movies[gl_state['movie']]}")
+
+    def goto_venue():
+        root2.destroy()
+        choose_venue()
 
     # new_window = tk.Toplevel(root)
     # new_window.title(gl_state['title'])
@@ -26,10 +31,11 @@ def movie_choose():
     o=tk.Label(root2,text="Hello")
 
     for count,text in enumerate(movies): 
-        tk.Radiobutton(root2, text = text, variable = v, value = count,justify=tk.LEFT,command=on_movie_select,anchor="w").pack(side = tk.TOP, fill="x",ipady = 5) 
+        tk.Radiobutton(root2, text = text, variable = v, value = count,justify=tk.LEFT,command=on_movie_select,anchor="w").pack(side = tk.TOP, fill="x",ipady = 5,ipadx=40) 
 
     o.pack(pady=10)
-    
+
+    tk.Button(root2,text="Select Venue",command=goto_venue).pack()
 
     root2.mainloop()
 
@@ -50,6 +56,11 @@ def submit():
     # root.quit()
     # label.config(text=f"Hello {name} 👋")
     # messagebox.showinfo("Info",f"Hello, {gl_state['name']}")
+
+def choose_venue():
+    root = tk.Tk()
+    root.title(gl_state['title'])
+    root.geometry("300x200")
 
 
 root = tk.Tk()
